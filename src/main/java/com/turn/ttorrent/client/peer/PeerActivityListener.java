@@ -15,10 +15,7 @@
  */
 package com.turn.ttorrent.client.peer;
 
-import com.turn.ttorrent.client.Piece;
-
 import java.io.IOException;
-
 import java.util.BitSet;
 import java.util.EventListener;
 
@@ -65,9 +62,9 @@ public interface PeerActivityListener extends EventListener {
 	 * </p>
 	 *
 	 * @param peer The peer we got the update from.
-	 * @param piece The piece that became available from this peer.
+	 * @param idx The index of the piece that became available from this peer.
 	 */
-	public void handlePieceAvailability(SharingPeer peer, Piece piece);
+	public void handlePieceAvailability(SharingPeer peer, int idx);
 
 	/**
 	 * Bit field availability handler.
@@ -91,9 +88,9 @@ public interface PeerActivityListener extends EventListener {
 	 * </p>
 	 *
 	 * @param peer The peer the piece was sent to.
-	 * @param piece The piece in question.
+	 * @param idx The index of the piece in question.
 	 */
-	public void handlePieceSent(SharingPeer peer, Piece piece);
+	public void handlePieceSent(SharingPeer peer, int idx);
 
 	/**
 	 * Piece download completion handler.
@@ -110,9 +107,9 @@ public interface PeerActivityListener extends EventListener {
 	 * </p>
 	 *
 	 * @param peer The peer we got this piece from.
-	 * @param piece The piece in question.
+     * @param idx The index of the piece in question.
 	 */
-	public void handlePieceCompleted(SharingPeer peer, Piece piece)
+	public void handlePieceCompleted(SharingPeer peer, int idx)
 		throws IOException;
 
 	/**

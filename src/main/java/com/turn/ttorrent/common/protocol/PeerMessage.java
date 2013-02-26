@@ -15,11 +15,11 @@
  */
 package com.turn.ttorrent.common.protocol;
 
-import com.turn.ttorrent.client.SharedTorrent;
-
 import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.util.BitSet;
+
+import com.turn.ttorrent.client.SharedTorrent;
 
 /**
  * BitTorrent peer protocol messages representations.
@@ -125,7 +125,8 @@ public abstract class PeerMessage {
 		return this;
 	}
 
-	public String toString() {
+	@Override
+    public String toString() {
 		return this.getType().name();
 	}
 
@@ -343,7 +344,7 @@ public abstract class PeerMessage {
 
 		private static final int BASE_SIZE = 5;
 
-		private int piece;
+		private final int piece;
 
 		private HaveMessage(ByteBuffer buffer, int piece) {
 			super(Type.HAVE, buffer);
@@ -379,7 +380,8 @@ public abstract class PeerMessage {
 			return new HaveMessage(buffer, piece);
 		}
 
-		public String toString() {
+		@Override
+        public String toString() {
 			return super.toString() + " #" + this.getPieceIndex();
 		}
 	}
@@ -393,7 +395,7 @@ public abstract class PeerMessage {
 
 		private static final int BASE_SIZE = 1;
 
-		private BitSet bitfield;
+		private final BitSet bitfield;
 
 		private BitfieldMessage(ByteBuffer buffer, BitSet bitfield) {
 			super(Type.BITFIELD, buffer);
@@ -443,7 +445,8 @@ public abstract class PeerMessage {
 			return new BitfieldMessage(buffer, availablePieces);
 		}
 
-		public String toString() {
+		@Override
+        public String toString() {
 			return super.toString() + " " + this.getBitfield().cardinality();
 		}
 	}
@@ -463,9 +466,9 @@ public abstract class PeerMessage {
 		/** Max block request size is 2^17 bytes, or 131kB. */
 		public static final int MAX_REQUEST_SIZE = 131072;
 
-		private int piece;
-		private int offset;
-		private int length;
+		private final int piece;
+		private final int offset;
+		private final int length;
 
 		private RequestMessage(ByteBuffer buffer, int piece,
 				int offset, int length) {
@@ -492,7 +495,7 @@ public abstract class PeerMessage {
 			throws MessageValidationException {
 			if (this.piece >= 0 && this.piece < torrent.getPieceCount() &&
 				this.offset + this.length <=
-					torrent.getPiece(this.piece).size()) {
+					torrent.getPieces().size(this.piece)) {
 				return this;
 			}
 
@@ -519,7 +522,8 @@ public abstract class PeerMessage {
 			return new RequestMessage(buffer, piece, offset, length);
 		}
 
-		public String toString() {
+		@Override
+        public String toString() {
 			return super.toString() + " #" + this.getPiece() +
 				" (" + this.getLength() + "@" + this.getOffset() + ")";
 		}
@@ -534,9 +538,9 @@ public abstract class PeerMessage {
 
 		private static final int BASE_SIZE = 9;
 
-		private int piece;
-		private int offset;
-		private ByteBuffer block;
+		private final int piece;
+		private final int offset;
+		private final ByteBuffer block;
 
 		private PieceMessage(ByteBuffer buffer, int piece,
 				int offset, ByteBuffer block) {
@@ -563,7 +567,7 @@ public abstract class PeerMessage {
 			throws MessageValidationException {
 			if (this.piece >= 0 && this.piece < torrent.getPieceCount() &&
 				this.offset + this.block.limit() <=
-				torrent.getPiece(this.piece).size()) {
+				torrent.getPieces().size(this.piece)) {
 				return this;
 			}
 
@@ -591,7 +595,8 @@ public abstract class PeerMessage {
 			return new PieceMessage(buffer, piece, offset, block);
 		}
 
-		public String toString() {
+		@Override
+        public String toString() {
 			return super.toString() + " #" + this.getPiece() +
 				" (" + this.getBlock().capacity() + "@" + this.getOffset() + ")";
 		}
@@ -606,9 +611,9 @@ public abstract class PeerMessage {
 
 		private static final int BASE_SIZE = 13;
 
-		private int piece;
-		private int offset;
-		private int length;
+		private final int piece;
+		private final int offset;
+		private final int length;
 
 		private CancelMessage(ByteBuffer buffer, int piece,
 				int offset, int length) {
@@ -635,7 +640,7 @@ public abstract class PeerMessage {
 			throws MessageValidationException {
 			if (this.piece >= 0 && this.piece < torrent.getPieceCount() &&
 				this.offset + this.length <=
-					torrent.getPiece(this.piece).size()) {
+					torrent.getPieces().size(this.piece)) {
 				return this;
 			}
 
@@ -662,7 +667,8 @@ public abstract class PeerMessage {
 			return new CancelMessage(buffer, piece, offset, length);
 		}
 
-		public String toString() {
+		@Override
+        public String toString() {
 			return super.toString() + " #" + this.getPiece() +
 				" (" + this.getLength() + "@" + this.getOffset() + ")";
 		}

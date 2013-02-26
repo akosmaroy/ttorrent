@@ -132,7 +132,7 @@ public class Client extends Observable implements Runnable,
 	 * @param torrent The torrent to download and share.
 	 */
 	public Client(InetAddress address, SharedTorrent torrent)
-		throws UnknownHostException, IOException {
+	                                throws UnknownHostException, IOException {
 		this.torrent = torrent;
 		this.state = ClientState.WAITING;
 
@@ -430,10 +430,10 @@ public class Client extends Observable implements Runnable,
 				String.format("%.2f", ul/1024.0),
 			});
 		for (SharingPeer peer : this.connected.values()) {
-			Piece piece = peer.getRequestedPiece();
+			int piece = peer.getRequestedPiece();
 			logger.debug("  | {} {}",
 				peer,
-				piece != null
+				piece != -1
 					? "(downloading " + piece + ")"
 					: ""
 			);
@@ -763,16 +763,18 @@ public class Client extends Observable implements Runnable,
 	public void handlePeerReady(SharingPeer peer) { /* Do nothing */ }
 
 	@Override
-	public void handlePieceAvailability(SharingPeer peer,
-			Piece piece) { /* Do nothing */ }
+	public void handlePieceAvailability(SharingPeer peer, int piece) {
+	    /* Do nothing */
+	}
 
 	@Override
 	public void handleBitfieldAvailability(SharingPeer peer,
 			BitSet availablePieces) { /* Do nothing */ }
 
 	@Override
-	public void handlePieceSent(SharingPeer peer,
-			Piece piece) { /* Do nothing */ }
+	public void handlePieceSent(SharingPeer peer, int piece) {
+	    /* Do nothing */
+	}
 
 	/**
 	 * Piece download completion handler.
@@ -789,30 +791,30 @@ public class Client extends Observable implements Runnable,
 	 * </p>
 	 *
 	 * @param peer The peer we got the piece from.
-	 * @param piece The piece in question.
+	 * @param idx The index of the piece in question.
 	 */
 	@Override
-	public void handlePieceCompleted(SharingPeer peer, Piece piece)
+	public void handlePieceCompleted(SharingPeer peer, int idx)
 		throws IOException {
 		synchronized (this.torrent) {
-			if (piece.isValid()) {
+			if (torrent.getPieces().isValid(idx)) {
 				// Make sure the piece is marked as completed in the torrent
 				// Note: this is required because the order the
 				// PeerActivityListeners are called is not defined, and we
 				// might be called before the torrent's piece completion
 				// handler is.
-				this.torrent.markCompleted(piece);
+				this.torrent.markCompleted(idx);
 				logger.debug("Completed download of {} from {}. " +
 					"We now have {}/{} pieces",
 					new Object[] {
-						piece,
+						idx,
 						peer,
 						this.torrent.getCompletedPieces().cardinality(),
 						this.torrent.getPieceCount()
 					});
 
 				// Send a HAVE message to all connected peers
-				PeerMessage have = PeerMessage.HaveMessage.craft(piece.getIndex());
+				PeerMessage have = PeerMessage.HaveMessage.craft(idx);
 				for (SharingPeer remote : this.connected.values()) {
 					remote.send(have);
 				}
@@ -823,7 +825,7 @@ public class Client extends Observable implements Runnable,
 				this.notifyObservers(this.state);
 			} else {
 				logger.warn("Downloaded piece#{} from {} was not valid ;-(",
-					piece.getIndex(), peer);
+					idx, peer);
 			}
 
 			if (this.torrent.isComplete()) {
