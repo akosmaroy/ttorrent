@@ -15,15 +15,7 @@
  */
 package com.turn.ttorrent.client;
 
-import com.turn.ttorrent.client.announce.Announce;
-import com.turn.ttorrent.client.announce.AnnounceException;
-import com.turn.ttorrent.client.announce.AnnounceResponseListener;
-import com.turn.ttorrent.client.peer.PeerActivityListener;
-import com.turn.ttorrent.common.Peer;
-import com.turn.ttorrent.common.Torrent;
-import com.turn.ttorrent.common.protocol.PeerMessage;
-import com.turn.ttorrent.common.protocol.TrackerMessage;
-import com.turn.ttorrent.client.peer.SharingPeer;
+import jargs.gnu.CmdLineParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,13 +43,18 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import jargs.gnu.CmdLineParser;
-
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.PatternLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.turn.ttorrent.client.announce.Announce;
+import com.turn.ttorrent.client.announce.AnnounceException;
+import com.turn.ttorrent.client.announce.AnnounceResponseListener;
+import com.turn.ttorrent.client.peer.PeerActivityListener;
+import com.turn.ttorrent.client.peer.SharingPeer;
+import com.turn.ttorrent.common.Peer;
+import com.turn.ttorrent.common.Torrent;
+import com.turn.ttorrent.common.protocol.PeerMessage;
+import com.turn.ttorrent.common.protocol.TrackerMessage;
 
 /**
  * A pure-java BitTorrent client.
@@ -113,20 +110,20 @@ public class Client extends Observable implements Runnable,
 
 	private static final String BITTORRENT_ID_PREFIX = "-TO0042-";
 
-	private SharedTorrent torrent;
+	private final SharedTorrent torrent;
 	private ClientState state;
-	private Peer self;
+	private final Peer self;
 
 	private Thread thread;
 	private boolean stop;
 	private long seed;
 
-	private ConnectionHandler service;
-	private Announce announce;
-	private ConcurrentMap<String, SharingPeer> peers;
-	private ConcurrentMap<String, SharingPeer> connected;
+	private final ConnectionHandler service;
+	private final Announce announce;
+	private final ConcurrentMap<String, SharingPeer> peers;
+	private final ConcurrentMap<String, SharingPeer> connected;
 
-	private Random random;
+	private final Random random;
 
 	/**
 	 * Initialize the BitTorrent client.
@@ -1023,9 +1020,6 @@ public class Client extends Observable implements Runnable,
 	 * Main client entry point for stand-alone operation.
 	 */
 	public static void main(String[] args) {
-		BasicConfigurator.configure(new ConsoleAppender(
-			new PatternLayout("%d [%-25t] %-5p: %m%n")));
-
 		CmdLineParser parser = new CmdLineParser();
 		CmdLineParser.Option help = parser.addBooleanOption('h', "help");
 		CmdLineParser.Option output = parser.addStringOption('o', "output");
@@ -1040,7 +1034,7 @@ public class Client extends Observable implements Runnable,
 		}
 
 		// Display help and exit if requested
-		if (Boolean.TRUE.equals((Boolean)parser.getOptionValue(help))) {
+		if (Boolean.TRUE.equals(parser.getOptionValue(help))) {
 			usage(System.out);
 			System.exit(0);
 		}

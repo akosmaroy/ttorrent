@@ -15,9 +15,7 @@
  */
 package com.turn.ttorrent.common;
 
-import com.turn.ttorrent.bcodec.BDecoder;
-import com.turn.ttorrent.bcodec.BEValue;
-import com.turn.ttorrent.bcodec.BEncoder;
+import jargs.gnu.CmdLineParser;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -51,14 +49,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import jargs.gnu.CmdLineParser;
-
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.PatternLayout;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.turn.ttorrent.bcodec.BDecoder;
+import com.turn.ttorrent.bcodec.BEValue;
+import com.turn.ttorrent.bcodec.BEncoder;
 
 /**
  * A torrent file tracked by the controller's BitTorrent tracker.
@@ -370,7 +366,8 @@ public class Torrent {
 	 * The torrent's name is used.
 	 * </p>
 	 */
-	public String toString() {
+	@Override
+    public String toString() {
 		return this.getName();
 	}
 
@@ -804,9 +801,6 @@ public class Torrent {
 	 * TODO: support multiple announce URLs.
 	 */
 	public static void main(String[] args) {
-		BasicConfigurator.configure(new ConsoleAppender(
-			new PatternLayout("%-5p: %m%n")));
-
 		CmdLineParser parser = new CmdLineParser();
 		CmdLineParser.Option help = parser.addBooleanOption('h', "help");
 		CmdLineParser.Option filename = parser.addStringOption('t', "torrent");
@@ -822,7 +816,7 @@ public class Torrent {
 		}
 
 		// Display help and exit if requested
-		if (Boolean.TRUE.equals((Boolean)parser.getOptionValue(help))) {
+		if (Boolean.TRUE.equals(parser.getOptionValue(help))) {
 			usage(System.out);
 			System.exit(0);
 		}

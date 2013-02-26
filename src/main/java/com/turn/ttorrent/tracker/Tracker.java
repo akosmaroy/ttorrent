@@ -15,7 +15,7 @@
  */
 package com.turn.ttorrent.tracker;
 
-import com.turn.ttorrent.common.Torrent;
+import jargs.gnu.CmdLineParser;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -30,17 +30,12 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import jargs.gnu.CmdLineParser;
-
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.PatternLayout;
-
+import org.simpleframework.transport.connect.Connection;
+import org.simpleframework.transport.connect.SocketConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.simpleframework.transport.connect.Connection;
-import org.simpleframework.transport.connect.SocketConnection;
+import com.turn.ttorrent.common.Torrent;
 
 /**
  * BitTorrent tracker.
@@ -247,8 +242,8 @@ public class Tracker {
 	 */
 	private static class TorrentRemoveTimer extends TimerTask {
 
-		private Tracker tracker;
-		private Torrent torrent;
+		private final Tracker tracker;
+		private final Torrent torrent;
 
 		TorrentRemoveTimer(Tracker tracker, Torrent torrent) {
 			this.tracker = tracker;
@@ -335,9 +330,6 @@ public class Tracker {
 	 * Main function to start a tracker.
 	 */
 	public static void main(String[] args) {
-		BasicConfigurator.configure(new ConsoleAppender(
-			new PatternLayout("%d [%-25t] %-5p: %m%n")));
-
 		CmdLineParser parser = new CmdLineParser();
 		CmdLineParser.Option help = parser.addBooleanOption('h', "help");
 		CmdLineParser.Option port = parser.addIntegerOption('p', "port");
@@ -351,7 +343,7 @@ public class Tracker {
 		}
 
 		// Display help and exit if requested
-		if (Boolean.TRUE.equals((Boolean)parser.getOptionValue(help))) {
+		if (Boolean.TRUE.equals(parser.getOptionValue(help))) {
 			usage(System.out);
 			System.exit(0);
 		}
